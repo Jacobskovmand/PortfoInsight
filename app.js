@@ -14,7 +14,7 @@ app.post("/validate", async (req, res) => {
   const { license, machine } = req.body;
 
   if (!license || !machine) {
-    return res.json("error");
+    return res.json({ status: "error" });
   }
 
   // 1. Find licensen i activations-tabellen
@@ -26,22 +26,58 @@ app.post("/validate", async (req, res) => {
 
   if (error) {
     console.log("Select error:", error);
-    return res.json("error");
+    return res.json({ status: "error" });
   }
 
   const existing = data[0];
 
   // 2. Licensen findes ikke
   if (!existing) {
-    return res.json("license_not_found");
+    return res.json({ status: "license_not_found" });
   }
 
   // 3. Licensen er disabled
   if (existing.disabled === true) {
-    return res.json("License disabled");
+    return res.json({ status: "disabled" });
   }
 
-  // 4. Licensen er ikke bundet til en maskine endnu
+  // 4. Trial-licens udløbet?
+  if (existing.Trial === true) {
+    const today = new Date();
+    const expiry = new Date(existing.ExpiryDate);
+
+    if (today > expiry) {
+      return res.json({ status: "trial_expired" });
+    }
+  }
+
+  // 5. Trial-licens må bruges på flere maskiner
+  if (existing.Trial === true) {
+    // Tjek om maskinen allerede findes
+    const { data: trialMachines } = await supabase
+      .from("activations")
+      .select("*")
+      .eq("license", license)
+      .eq("machine", machine);
+
+    if (trialMachines.length > 0) {
+      return res.json({ status: "valid" });
+    }
+
+    // Ellers registrér maskinen
+    const { error: insertError } = await supabase
+      .from("activations")
+      .insert([{ license, machine }]);
+
+    if (insertError) {
+      console.log("Insert error:", insertError);
+      return res.json({ status: "error" });
+    }
+
+    return res.json({ status: "registered" });
+  }
+
+  // 6. Normal licens → kun én maskine
   if (!existing.machine || existing.machine === "") {
     const { error: updateError } = await supabase
       .from("activations")
@@ -50,19 +86,19 @@ app.post("/validate", async (req, res) => {
 
     if (updateError) {
       console.log("Update error:", updateError);
-      return res.json("error");
+      return res.json({ status: "error" });
     }
 
-    return res.json("registered");
+    return res.json({ status: "registered" });
   }
 
-  // 5. Maskinen matcher → valid
+  // 7. Maskinen matcher → valid
   if (existing.machine === machine) {
-    return res.json("valid");
+    return res.json({ status: "valid" });
   }
 
-  // 6. Maskinen matcher ikke → invalid
-  return res.json("invalid_machine");
+  // 8. Maskinen matcher ikke → invalid
+  return res.json({ status: "invalid_machine" });
 });
 
 const PORT = process.env.PORT || 3000;
