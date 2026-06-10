@@ -17,9 +17,9 @@ app.post("/validate", async (req, res) => {
     return res.json({ status: "error" });
   }
 
-  // 1. Find licensen i activations-tabellen
+  // 1. Find licensen i LicenseTable-tabellen
   const { data, error } = await supabase
-    .from("activations")
+    .from("LicenseTable")
     .select("*")
     .eq("license", license)
     .limit(1);
@@ -54,7 +54,7 @@ app.post("/validate", async (req, res) => {
   if (existing.Trial === true) {
     // Tjek om maskinen allerede findes
     const { data: trialMachines } = await supabase
-      .from("activations")
+      .from("LicenseTable")
       .select("*")
       .eq("license", license)
       .eq("machine", machine);
@@ -65,7 +65,7 @@ app.post("/validate", async (req, res) => {
 
     // Ellers registrér maskinen
     const { error: insertError } = await supabase
-      .from("activations")
+      .from("LicenseTable")
       .insert([{ license, machine, activationDate: today }]);
 
     if (insertError) {
@@ -79,7 +79,7 @@ app.post("/validate", async (req, res) => {
   // 6. Normal licens → kun én maskine
   if (!existing.machine || existing.machine === "") {
     const { error: updateError } = await supabase
-      .from("activations")
+      .from("LicenseTable")
       .update({ machine, activationDate: today })
       .eq("license", license);
 
