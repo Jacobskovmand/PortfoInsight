@@ -14,7 +14,7 @@ app.post("/validate", async (req, res) => {
   const { license, machine } = req.body;
 
   if (!license || !machine) {
-    return res.json({ status: "error" });
+    return res.json({ status: "error_1" });
   }
 
   // 1. Find licensen i LicenseTable-tabellen
@@ -26,7 +26,7 @@ app.post("/validate", async (req, res) => {
 
   if (error) {
     console.log("Select error:", error);
-    return res.json({ status: "error" });
+    return res.json({ status: "error_2" });
   }
 
   const existing = data[0];
@@ -70,7 +70,7 @@ app.post("/validate", async (req, res) => {
 
     if (insertError) {
       console.log("Insert error:", insertError);
-      return res.json({ status: "error" });
+      return res.json({ status: "error_3" });
     }
 
     return res.json({ status: "registered" });
@@ -85,7 +85,7 @@ app.post("/validate", async (req, res) => {
 
     if (updateError) {
       console.log("Update error:", updateError);
-      return res.json({ status: "error" });
+      return res.json({ status: "error_4" });
     }
 
     return res.json({ status: "registered" });
