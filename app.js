@@ -16,15 +16,18 @@ async function logLicenseCheck(license, machine, status) {
     .from("LicenseChecked")
     .insert([
       {
-        License: license,
+        license: license,
         machine: machine,
         status: status
       }
     ])
     .select();
 
-  console.log("Data:", data);
-  console.log("Error:", error);
+   if (error) {
+    console.error("DB error:", error);
+  } else {
+    console.log("Inserted:", data);
+  }
 }
 
 
