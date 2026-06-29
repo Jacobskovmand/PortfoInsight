@@ -10,6 +10,21 @@ const supabase = createClient(
   process.env.SUPABASE_KEY
 );
 
+// Hjælpefunktion
+async function logLicenseCheck(license, machine, status) {
+  const { error } = await supabase
+    .from("LicenseChecked")
+    .insert([{
+      license,
+      machine,
+      status,
+      checkedAt: new Date()
+    }]);
+
+  if (error) {
+    console.error("LicenseChecked insert error:", error);
+  }
+}
 app.post("/validate", async (req, res) => {
   const { license, machine } = req.body;
 
@@ -92,6 +107,7 @@ app.post("/validate", async (req, res) => {
 
   // 7. Maskinen matcher → valid
   if (existing.machine === machine) {
+    await logLicenseCheck(license, machine, "Valid");
     return res.json({ status: "Valid" });
   }
 
