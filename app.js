@@ -30,7 +30,8 @@ async function logLicenseCheck(license, machine, status) {
 
 app.post("/validate", async (req, res) => {
   const { license, machine } = req.body;
-
+  console.log("🔥 REQUEST RECEIVED");
+  console.log("BODY:", req.body);
   if (!license || !machine) {
     return res.json({ status: "No license entered" });
   }
