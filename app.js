@@ -27,10 +27,7 @@ async function logLicenseCheck(license, machine, status) {
   console.log("Error:", error);
 }
 
-  if (error) {
-    console.error("LicenseChecked insert error:", error);
-  }
-}
+
 app.post("/validate", async (req, res) => {
   const { license, machine } = req.body;
 
