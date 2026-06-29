@@ -41,15 +41,12 @@ app.post("/validate", async (req, res) => {
     return res.json({ status: "License disabled" });
   }
 
-  // 4. Trial-licens udløbet?
-  if (existing.Trial === true) {
-    
+  // 4. License Expired?  
     const expiry = new Date(existing.ExpiryDate);
     if (today > expiry) {
       return res.json({ status: "Trial expired" });
     }
-  }
-
+  
   // 5. Trial-licens må bruges på flere maskiner
   if (existing.Trial === true) {
     // Tjek om maskinen allerede findes
