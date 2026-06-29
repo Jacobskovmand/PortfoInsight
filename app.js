@@ -42,9 +42,11 @@ app.post("/validate", async (req, res) => {
   }
 
   // 4. License Expired?  
+  if(existing.expiryDate) { 
     const expiry = new Date(existing.ExpiryDate);
     if (today > expiry) {
-      return res.json({ status: "Trial expired" });
+      return res.json({ status: "License expired" });
+    }
     }
   
   // 5. Trial-licens må bruges på flere maskiner
