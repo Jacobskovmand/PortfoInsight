@@ -31,7 +31,7 @@ async function logLicenseCheck(license, machine, status) {
   }
 }
 
-
+console.log("Logging license start")
 app.post("/validate", async (req, res) => {
   const { license, machine } = req.body;
     if (!license || !machine) {
