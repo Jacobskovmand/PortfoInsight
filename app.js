@@ -31,13 +31,12 @@ async function logLicenseCheck(license, machine, status) {
   }
 }
 
-console.log("Logging license start")
 app.post("/validate", async (req, res) => {
   const { license, machine } = req.body;
     if (!license || !machine) {
     return res.json({ status: "No license entered" });
   }
-
+  console.log("Logging license start")
   // 1. Find licensen i LicenseTable-tabellen
   const { data, error } = await supabase
     .from("LicenseTable")
