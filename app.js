@@ -1,123 +1,104 @@
 const express = require("express");
 const { createClient } = require("@supabase/supabase-js");
-const today = new Date();
+
 const app = express();
 app.use(express.json());
 
-// Railway miljøvariabler
+// Opret Supabase-klient via Railway miljøvariabler
 const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_KEY
 );
 
-// Hjælpefunktion
+// Logger hver licens-check i separat tabel
 async function logLicenseCheck(license, machine, status) {
-  console.log("Logging license check")
-  const { data, error } = await supabase
-    .from("LicenseChecked")
-    .insert([
-      {
-        license: license,
-        machine: machine,
-        status: status
-      }
-    ])
-    .select();
+  try {
+    const { data, error } = await supabase
+      .from("LicenseChecked")
+      .insert([{ license, machine, status }])
+      .select();
 
-   if (error) {
-    console.error("DB error:", error);
-  } else {
-    console.log("Inserted:", data);
+    if (error) console.error("DB error:", error);
+    else console.log("Inserted:", data);
+  } catch (err) {
+    console.error("Log error:", err);
   }
 }
 
+// API-endpoint til licensvalidering
 app.post("/validate", async (req, res) => {
   const { license, machine } = req.body;
-    if (!license || !machine) {
-    return res.json({ status: "No license entered" });
-  }
-  console.log("Logging license start")
-  // 1. Find licensen i LicenseTable-tabellen
+
+  // Kræver både licens og maskine
+  if (!license || !machine) return res.json({ status: "No license entered" });
+
+  // Slår licensen op i LicenseTable
   const { data, error } = await supabase
     .from("LicenseTable")
     .select("*")
     .eq("license", license)
     .limit(1);
 
-  if (error) {
-    console.log("Select error:", error);
-    return res.json({ status: "error_2" });
-  }
+  if (error) return res.json({ status: "error_2" });
+
   const existing = data[0];
 
-  // 2. Licensen findes ikke
-  if (!existing) {
-    return res.json({ status: "License not found" });
+  // Licensen findes ikke
+  if (!existing) return res.json({ status: "License not found" });
+
+  // Licensen er deaktiveret
+  if (existing.disabled) return res.json({ status: "License disabled" });
+
+  // Udløbsdato-check
+  if (existing.expiryDate) {
+    const expiry = new Date(existing.expiryDate);
+    if (Date.now() > expiry) return res.json({ status: "License expired" });
   }
 
-  // 3. Licensen er disabled
-  if (existing.disabled === true) {
-    return res.json({ status: "License disabled" });
-  }
-
-  // 4. License Expired?  
-  if(existing.expiryDate) { 
-    const expiry = new Date(existing.ExpiryDate);
-    if (today > expiry) {
-      return res.json({ status: "License expired" });
-    }
-    }
-  
-  // 5. Trial-licens må bruges på flere maskiner
-  if (existing.Trial === true) {
-    // Tjek om maskinen allerede findes
+  // Trial-licens → må bruges på flere maskiner
+  if (existing.Trial) {
     const { data: trialMachines } = await supabase
       .from("LicenseTable")
       .select("*")
       .eq("license", license)
       .eq("machine", machine);
-      
-    if (trialMachines.length > 0) {
-      return res.json({ status: "Trial license" });
-    }
 
-    // Ellers registrér maskinen
+    // Maskinen er allerede registreret → valid trial
+    if (trialMachines.length > 0) return res.json({ status: "Trial license" });
+
+    // Registrér ny maskine til trial-licens
     const { error: insertError } = await supabase
       .from("LicenseTable")
-      .insert([{ license, machine, activationDate: today }]);
+      .insert([{ license, machine, activationDate: new Date() }]);
 
-    if (insertError) {
-      console.log("Insert error:", insertError);
-      return res.json({ status: "error_3" });
-    }
+    if (insertError) return res.json({ status: "error_3" });
 
     return res.json({ status: "registered" });
   }
 
-  // 6. Normal licens → kun én maskine
-  if (!existing.machine || existing.machine === "") {
+  // Normal licens → må kun bruges på én maskine
+  if (!existing.machine) {
     const { error: updateError } = await supabase
       .from("LicenseTable")
-      .update({ machine, activationDate: today })
+      .update({ machine, activationDate: new Date() })
       .eq("license", license);
 
-    if (updateError) {
-      console.log("Update error:", updateError);
-      return res.json({ status: "error_4" });
-    }
+    if (updateError) return res.json({ status: "error_4" });
 
     return res.json({ status: "Registered" });
   }
 
-  // 7. Maskinen matcher → valid
+  // Maskinen matcher → valid
   if (existing.machine === machine) {
     await logLicenseCheck(license, machine, "Valid");
     return res.json({ status: "Valid" });
   }
 
-  // 8. Maskinen matcher ikke → invalid
+  // Maskinen matcher ikke → invalid
   return res.json({ status: "Invalid Machine" });
 });
 
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log("Server running on port " + PORT));
+
