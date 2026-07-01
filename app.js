@@ -54,7 +54,11 @@ app.post("/validate", async (req, res) => {
     const expiry = new Date(existing.expiryDate);
     if (Date.now() > expiry) return res.json({ status: "License expired" });
   }
-
+  console.log("expiryDate raw:", existing.expiryDate);
+  console.log("parsed:", new Date(existing.expiryDate));
+  console.log("now:", Date.now());
+  console.log("expiry ms:", new Date(existing.expiryDate).getTime());
+  
   // Trial-licens → må bruges på flere maskiner
   if (existing.Trial) {
     const { data: trialMachines } = await supabase
