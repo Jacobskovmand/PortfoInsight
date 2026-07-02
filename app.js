@@ -100,7 +100,7 @@ app.post("/validate", async (req, res) => {
   }
 
   // Maskinen matcher ikke → invalid
-  return res.json({ status: "Invalid Machine" });
+  return res.json({ status: "License is not bought for this PC\nContact: JacobSkovmand@hotmail.com" });
 });
 
 // Start server
