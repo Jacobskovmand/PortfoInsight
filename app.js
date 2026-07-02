@@ -18,7 +18,7 @@ async function logLicenseCheck(license, machine, status)
       .from("LicenseChecked")
       .insert([{ license, machine, status }])
       .select();
-    console.log(license)
+    console.log("Her logges")
     if (error) console.error("DB error:", error);
     else console.log("Inserted:", data);
   } catch (err) {
@@ -57,11 +57,12 @@ app.post("/validate", async (req, res) =>  {
       return res.json({ status: "License expired\nContact: JacobSkovmand@hotmail.com" })};
   }
   console.log("Skovmand")
-   console.log(existing.license)
-  console.log(existing.machine)
+   
   console.log(existing.trial)
   // Trial-licens → må bruges på flere maskiner
   if (existing.Trial) {
+    console.log(license)
+    console.log(machine)
     await logLicenseCheck(license, machine, "Trial");
     // Maskinen er allerede registreret → valid trial
     return res.json({ status: "Trial license registered" });    
