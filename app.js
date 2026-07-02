@@ -52,9 +52,11 @@ app.post("/validate", async (req, res) => {
 
   // Udløbsdato-check
   if (existing.expiryDate) {
-    const expiry = new Date(existing.expiryDate);
-    if (Date.now() > expiry) return res.json({ status: "License expired\nContact: JacobSkovmand@hotmail.com" });
+    const expiry = new Date(existing.expiryDate).getTime();
+    if (Date.now() > expiry){
+      return res.json({ status: "License expired\nContact: JacobSkovmand@hotmail.com" })};
   }
+ 
   console.log("expiryDate raw:", existing.expiryDate);
   console.log("parsed:", new Date(existing.expiryDate));
   console.log("now:", Date.now());
