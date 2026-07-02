@@ -31,7 +31,7 @@ app.post("/validate", async (req, res) => {
 
   
   // Kræver både licens og maskine
-  if (!license || !machine) return res.json({ status: "No license entered" \n
+  if (!license || !machine) return res.json({ status: "No license entered",
                                               message: "Contact JacobSkovmand@hotmail.com"});
 
   // Slår licensen op i LicenseTable
