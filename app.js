@@ -57,10 +57,10 @@ app.post("/validate", async (req, res) => {
       return res.json({ status: "License expired\nContact: JacobSkovmand@hotmail.com" })};
   }
  
-  console.log("expiryDate raw:", existing.expiryDate);
-  console.log("parsed:", new Date(existing.expiryDate));
-  console.log("now:", Date.now());
-  console.log("expiry ms:", new Date(existing.expiryDate).getTime());
+  //console.log("expiryDate raw:", existing.expiryDate);
+  //console.log("parsed:", new Date(existing.expiryDate));
+  //console.log("now:", Date.now());
+  //console.log("expiry ms:", new Date(existing.expiryDate).getTime());
   
   // Trial-licens → må bruges på flere maskiner
   if (existing.Trial) {
@@ -89,12 +89,12 @@ app.post("/validate", async (req, res) => {
       .from("LicenseTable")
       .update({ machine, activationDate: new Date() })
       .eq("license", license);
-
+  console.log("1111111111111111")
     if (updateError) return res.json({ status: "error_4" });
 
     return res.json({ status: "Registered" });
   }
-
+  console.log("2222222222222")
   // Maskinen matcher → valid
   if (existing.machine === machine) {
     await logLicenseCheck(license, machine, "Valid");
