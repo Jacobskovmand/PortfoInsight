@@ -56,7 +56,9 @@ app.post("/validate", async (req, res) =>  {
     if (Date.now() > expiry){
       return res.json({ status: "License expired\nContact: JacobSkovmand@hotmail.com" })};
   }
-   
+   console.log(existing.license)
+  console.log(existing.machine)
+  console.log(existing.trial)
   // Trial-licens → må bruges på flere maskiner
   if (existing.Trial) {
     await logLicenseCheck(license, machine, "Trial");
