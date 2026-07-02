@@ -11,7 +11,8 @@ const supabase = createClient(
 );
 
 // Logger hver licens-check i separat tabel
-async function logLicenseCheck(license, machine, status) {
+async function logLicenseCheck(license, machine, status) 
+{
   try {
     const { data, error } = await supabase
       .from("LicenseChecked")
@@ -26,7 +27,7 @@ async function logLicenseCheck(license, machine, status) {
 }
 
 // API-endpoint til licensvalidering
-app.post("/validate", async (req, res) => {
+app.post("/validate", async (req, res) =>  {
   const { license, machine } = req.body;
   
   // Kræver både licens og maskine
@@ -58,16 +59,9 @@ app.post("/validate", async (req, res) => {
    
   // Trial-licens → må bruges på flere maskiner
   if (existing.Trial) {
-    const { data: trialMachines } = await supabase
-      .from("LicenseTable")
-      .select("*")
-      .eq("license", license);
-//      .eq("machine", machine);
-    await logLicenseCheck(license, machine, "Test");
+    await logLicenseCheck(license, machine, "Trial");
     // Maskinen er allerede registreret → valid trial
-    if (trialMachines.length > 0) return res.json({ status: "Trial license" });
-   
-    return res.json({ status: "registered01" });
+    return res.json({ status: "Trial license registered" });    
   }
 
   // Normal licens → må kun bruges på én maskine
@@ -80,7 +74,7 @@ app.post("/validate", async (req, res) => {
     
     if (updateError) return res.json({ status: "update error" });
 
-    return res.json({ status: "Licens registred" });
+    return res.json({ status: "Licens registered" });
   }
   
   // Maskinen matcher → valid
