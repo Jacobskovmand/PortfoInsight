@@ -56,6 +56,7 @@ app.post("/validate", async (req, res) =>  {
     if (Date.now() > expiry){
       return res.json({ status: "License expired\nContact: JacobSkovmand@hotmail.com" })};
   }
+  console.log("Skovmand")
    console.log(existing.license)
   console.log(existing.machine)
   console.log(existing.trial)
