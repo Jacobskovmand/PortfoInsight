@@ -45,15 +45,15 @@ app.post("/validate", async (req, res) => {
   const existing = data[0];
 
   // Licensen findes ikke
-  if (!existing) return res.json({ status: "License not found" });
+  if (!existing) return res.json({ status: "License not found\nContact: JacobSkovmand@hotmail.com" });
 
   // Licensen er deaktiveret
-  if (existing.disabled) return res.json({ status: "License disabled" });
+  if (existing.disabled) return res.json({ status: "License disabled\nContact: JacobSkovmand@hotmail.com" });
 
   // Udløbsdato-check
   if (existing.expiryDate) {
     const expiry = new Date(existing.expiryDate);
-    if (Date.now() > expiry) return res.json({ status: "License expired" });
+    if (Date.now() > expiry) return res.json({ status: "License expired\nContact: JacobSkovmand@hotmail.com" });
   }
   console.log("expiryDate raw:", existing.expiryDate);
   console.log("parsed:", new Date(existing.expiryDate));
