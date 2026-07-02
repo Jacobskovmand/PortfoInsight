@@ -31,8 +31,8 @@ app.post("/validate", async (req, res) => {
 
   
   // Kræver både licens og maskine
-  if (!license || !machine) return res.json({ status: "No license entered\n",
-                                              message: "Contact JacobSkovmand@hotmail.com"});
+  if (!license || !machine) return res.json({ status: "No license entered\n"
+                                              "Contact JacobSkovmand@hotmail.com"});
 
   // Slår licensen op i LicenseTable
   const { data, error } = await supabase
