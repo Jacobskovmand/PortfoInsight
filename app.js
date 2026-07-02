@@ -81,9 +81,10 @@ app.post("/validate", async (req, res) => {
   if (!existing.machine) {
     const { error: updateError } = await supabase
       .from("LicenseTable")
-      .update({ machine, activationDate: new Date() })
+      .update({ machine})
       .eq("license", license);
-  console.log("1111111111111111")
+  await logLicenseCheck(license, machine, "Trial");
+    
     if (updateError) return res.json({ status: "error_4" });
 
     return res.json({ status: "Registered02" });
