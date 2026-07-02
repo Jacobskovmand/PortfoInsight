@@ -66,30 +66,23 @@ app.post("/validate", async (req, res) => {
     await logLicenseCheck(license, machine, "Test");
     // Maskinen er allerede registreret → valid trial
     if (trialMachines.length > 0) return res.json({ status: "Trial license" });
-
-    // Registrér ny maskine til trial-licens
-   // const { error: insertError } = await supabase
-   //   .from("LicenseTable")
-   //   .insert([{ license, machine, activationDate: new Date() }]);
-
-   // if (insertError) return res.json({ status: "error_3" });
-
+   
     return res.json({ status: "registered01" });
   }
 
   // Normal licens → må kun bruges på én maskine
-  if (!existing.machine) {
+  if (!existing.trial && !existing.machine) {
     const { error: updateError } = await supabase
       .from("LicenseTable")
-      .update({ machine})
+      .update({ machine, activationDate: new Date()})
       .eq("license", license);
-  await logLicenseCheck(license, machine, "Trial");
+      await logLicenseCheck(license, machine, "Customer");
     
-    if (updateError) return res.json({ status: "error_4" });
+    if (updateError) return res.json({ status: "update error" });
 
-    return res.json({ status: "Registered02" });
+    return res.json({ status: "Licens registred" });
   }
-  console.log("2222222222222")
+  
   // Maskinen matcher → valid
   if (existing.machine === machine) {
     await logLicenseCheck(license, machine, "Valid");
