@@ -28,7 +28,6 @@ async function logLicenseCheck(license, machine, status) {
 // API-endpoint til licensvalidering
 app.post("/validate", async (req, res) => {
   const { license, machine } = req.body;
-
   
   // Kræver både licens og maskine
   if (!license || !machine) return res.json({ Status: "No license entered\nContact: JacobSkovmand@hotmail.com"});
@@ -67,18 +66,18 @@ app.post("/validate", async (req, res) => {
     const { data: trialMachines } = await supabase
       .from("LicenseTable")
       .select("*")
-      .eq("license", license)
-      .eq("machine", machine);
-
+      .eq("license", license);
+//      .eq("machine", machine);
+    await logLicenseCheck(license, machine, "Valid");
     // Maskinen er allerede registreret → valid trial
     if (trialMachines.length > 0) return res.json({ status: "Trial license" });
 
     // Registrér ny maskine til trial-licens
-    const { error: insertError } = await supabase
-      .from("LicenseTable")
-      .insert([{ license, machine, activationDate: new Date() }]);
+   // const { error: insertError } = await supabase
+   //   .from("LicenseTable")
+   //   .insert([{ license, machine, activationDate: new Date() }]);
 
-    if (insertError) return res.json({ status: "error_3" });
+   // if (insertError) return res.json({ status: "error_3" });
 
     return res.json({ status: "registered" });
   }
