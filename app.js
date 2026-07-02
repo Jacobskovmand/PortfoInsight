@@ -60,7 +60,7 @@ app.post("/validate", async (req, res) =>  {
    
   console.log(existing.trial)
   // Trial-licens → må bruges på flere maskiner
-  if (existing.Trial) {
+  if (existing.trial) {
     console.log(license)
     console.log(machine)
     await logLicenseCheck(license, machine, "Trial");
