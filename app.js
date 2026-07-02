@@ -17,7 +17,7 @@ async function logLicenseCheck(license, machine, status) {
       .from("LicenseChecked")
       .insert([{ license, machine, status }])
       .select();
-
+    console.log(license)
     if (error) console.error("DB error:", error);
     else console.log("Inserted:", data);
   } catch (err) {
@@ -55,12 +55,7 @@ app.post("/validate", async (req, res) => {
     if (Date.now() > expiry){
       return res.json({ status: "License expired\nContact: JacobSkovmand@hotmail.com" })};
   }
- 
-  //console.log("expiryDate raw:", existing.expiryDate);
-  //console.log("parsed:", new Date(existing.expiryDate));
-  //console.log("now:", Date.now());
-  //console.log("expiry ms:", new Date(existing.expiryDate).getTime());
-  
+   
   // Trial-licens → må bruges på flere maskiner
   if (existing.Trial) {
     const { data: trialMachines } = await supabase
@@ -68,7 +63,7 @@ app.post("/validate", async (req, res) => {
       .select("*")
       .eq("license", license);
 //      .eq("machine", machine);
-    await logLicenseCheck(license, machine, "Valid");
+    await logLicenseCheck(license, machine, "Test");
     // Maskinen er allerede registreret → valid trial
     if (trialMachines.length > 0) return res.json({ status: "Trial license" });
 
@@ -79,7 +74,7 @@ app.post("/validate", async (req, res) => {
 
    // if (insertError) return res.json({ status: "error_3" });
 
-    return res.json({ status: "registered" });
+    return res.json({ status: "registered01" });
   }
 
   // Normal licens → må kun bruges på én maskine
@@ -91,7 +86,7 @@ app.post("/validate", async (req, res) => {
   console.log("1111111111111111")
     if (updateError) return res.json({ status: "error_4" });
 
-    return res.json({ status: "Registered" });
+    return res.json({ status: "Registered02" });
   }
   console.log("2222222222222")
   // Maskinen matcher → valid
