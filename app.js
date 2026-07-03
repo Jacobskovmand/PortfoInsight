@@ -1,6 +1,8 @@
 const express = require("express");
 const { createClient } = require("@supabase/supabase-js");
 
+const CONTACT = process.env.CONTACT_EMAIL || "JacobSkovmand@hotmail.com";
+
 const app = express();
 app.use(express.json());
 
@@ -30,7 +32,7 @@ app.post("/validate", async (req, res) =>  {
   const { license, machine } = req.body;
   
   // Kræver både licens og maskine
-  if (!license || !machine) return res.json({ Status: "No license entered\nContact: JacobSkovmand@hotmail.com"});
+  if (!license || !machine) return res.json({ Status: "No license entered\nContact: CONTACT"});
 
   // Slår licensen op i LicenseTable
   const { data, error } = await supabase
@@ -44,24 +46,22 @@ app.post("/validate", async (req, res) =>  {
   const existing = data[0];
 
   // Licensen findes ikke
-  if (!existing) return res.json({ status: "License not found\nContact: JacobSkovmand@hotmail.com" });
+  if (!existing) return res.json({ status: "License not found\nContact: CONTACT" });
 
   // Licensen er deaktiveret
-  if (existing.disabled) return res.json({ status: "License disabled\nContact: JacobSkovmand@hotmail.com" });
+  if (existing.disabled) return res.json({ status: "License disabled\nContact: CONTACT" });
 
   // Udløbsdato-check
   if (existing.expiryDate) {
     const expiry = new Date(existing.expiryDate).getTime();
     if (Date.now() > expiry){
-      return res.json({ status: "License expired\nContact: JacobSkovmand@hotmail.com" })};
+      return res.json({ status: "License expired\nContact: CONTACT" })};
   }
   
   // Trial-licens → må bruges på flere maskiner
   if (existing.trial) {
-    console.log(license)
-    console.log(machine)
     await logLicenseCheck(license, machine, "Trial");
-    // Maskinen er allerede registreret → valid trial
+    
     return res.json({ status: "Trial license registered" });    
   }
 
@@ -85,7 +85,7 @@ app.post("/validate", async (req, res) =>  {
   }
 
   // Maskinen matcher ikke → invalid
-  return res.json({ status: "License is not bought for this PC\nContact: JacobSkovmand@hotmail.com" });
+  return res.json({ status: "License is not bought for this PC\nContact: CONTACT" });
 });
 
 // Start server
