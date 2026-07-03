@@ -1,1 +1,5 @@
-
+{
+  "validateUrl": "https://licensekey-production-586b.up.railway.app/validate",
+  "contact": "JacobSkovmand@hotmail.com",
+  "version": "1.0.0"
+}
