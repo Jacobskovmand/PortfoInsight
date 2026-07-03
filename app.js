@@ -1,7 +1,7 @@
 const express = require("express");
 const { createClient } = require("@supabase/supabase-js");
 
-const CONTACT = process.env.CONTACT_EMAIL || "JacobSkovmand@hotmail.com";
+const CONTACT = process.env.CONTACT_EMAIL || "JacobSkovmand@gmail.com";
 
 const app = express();
 app.use(express.json());
